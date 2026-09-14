@@ -31,6 +31,11 @@ public class InsertionCostBreakdown {
 
     private final Map<String, Double> components = new LinkedHashMap<>();
 
+    // Running total, kept in sync by add()/merge(). getTotal() is called once per candidate
+    // insertion position - a stream-sum over the map there showed up as several percent of
+    // total solve time in profiles.
+    private double total = 0;
+
     /**
      * Add a cost component.
      *
@@ -39,6 +44,7 @@ public class InsertionCostBreakdown {
      */
     public void add(String name, double cost) {
         components.merge(name, cost, Double::sum);
+        total += cost;
     }
 
     /**
@@ -80,7 +86,7 @@ public class InsertionCostBreakdown {
      * @return Total cost
      */
     public double getTotal() {
-        return components.values().stream().mapToDouble(d -> d).sum();
+        return total;
     }
 
     /**
